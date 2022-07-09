@@ -1,0 +1,202 @@
+{
+    "0": {
+        "page_name": "Assembleia da República",
+        "url": "https://www.parlamento.pt",
+        "entity": "Assembleia da República"
+    },
+    "1": {
+        "page_name": "Governo",
+        "url": "https://www.portugal.gov.pt",
+        "entity": "Governo"
+    },
+    "2": {
+        "page_name": "e-portugal",
+        "url": "https://eportugal.gov.pt/",
+        "entity": "e-portugal"
+    },
+    "3": {
+        "page_name": "Serviço Nacional de Saúde",
+        "url": "https://www.sns.gov.pt/",
+        "entity": "Serviço Nacional de Saúde"
+    },
+    "4": {
+        "page_name": "Portal das Finanças",
+        "url": "https://www.portaldasfinancas.gov.pt/at/html/index.html",
+        "entity": "Autoridade Tributária"
+    },
+    "5": {
+        "page_name": "Segurança Social",
+        "url": "https://www.seg-social.pt/inicio",
+        "entity": "Segurança Social"
+    },
+    "6": {
+        "page_name": "Justiça",
+        "url": "https://justica.gov.pt/",
+        "entity": "Justiça"
+    },
+    "7": {
+        "page_name": "Serviços de Informação e Segurança",
+        "url": "https://www.sis.pt/",
+        "entity": "Serviços de Informação e Segurança"
+    },
+    "8": {
+        "page_name": "Serviço de Informações Estratégicas de Defesa",
+        "url": "https://www.sied.pt/",
+        "entity": "Serviço de Informações Estratégicas de Defesa"
+    },
+    "9": {
+        "page_name": "Sistema de Informações da República Portuguesa",
+        "url": "https://www.sirp.pt/",
+        "entity": "Sistema de Informações da República Portuguesa"
+    },
+    "10": {
+        "page_name": "Conselho de Fiscalização do Sistema de Informações da República Portuguesa",
+        "url": "https://cfsirp.pt/",
+        "entity": "Conselho de Fiscalização do Sistema de Informações da República Portuguesa"
+    },
+    "11": {
+        "page_name": "covid-19 estamos on",
+        "url": "https://covid19estamoson.gov.pt/",
+        "entity": "covid-19 estamos on"
+    },
+    "12": {
+        "page_name": "Diário da República Eletrónico",
+        "url": "https://dre.pt/dre/home",
+        "entity": "Diário da República Eletrónico"
+    },
+    "13": {
+        "page_name": "Tribunal Constitucional",
+        "url": "https://www.tribunalconstitucional.pt/tc/home.html",
+        "entity": "Tribunal Constitucional"
+    },
+    "14": {
+        "page_name": "Entidade Reguladora da Saúde",
+        "url": "https://www.ers.pt/pt/",
+        "entity": "Entidade Reguladora da Saúde"
+    },
+    "15": {
+        "page_name": "Entidade Reguladora para a Comunicação",
+        "url": "https://www.erc.pt/",
+        "entity": "Entidade Reguladora para a Comunicação"
+    },
+    "16": {
+        "page_name": "Entidade Reguladora para a Comunicação",
+        "url": "https://www.erc.pt/",
+        "entity": "Entidade Reguladora para a Comunicação"
+    },
+    "17": {
+        "page_name": "Entidade Reguladora dos Serviços Energéticos",
+        "url": "https://www.erse.pt/inicio/",
+        "entity": "Entidade Reguladora dos Serviços Energéticos"
+    },
+    "18": {
+        "page_name": "Entidade Reguladora dos Serviços de Águas e Resíduos",
+        "url": "https://www.ersar.pt/pt",
+        "entity": "Entidade Reguladora dos Serviços de Águas e Resíduos"
+    },
+    "19": {
+        "page_name": "Entidade Reguladora dos Serviços de Águas e Resíduos",
+        "url": "https://www.ersar.pt/pt",
+        "entity": "Entidade Reguladora dos Serviços de Águas e Resíduos"
+    },
+    "20": {
+        "page_name": "Autoridade Nacional de Aviação Civil (ANAC)",
+        "url": "https://www.anac.pt/",
+        "entity": "Autoridade Nacional de Aviação Civil (ANAC)"
+    },
+    "21": {
+        "page_name": "Comissão do Mercado de Valores Mobiliários (CMVM)",
+        "url": "http://www.cmvm.pt/",
+        "entity": "Comissão do Mercado de Valores Mobiliários (CMVM)"
+    },
+    "22": {
+        "page_name": "Autoridade Nacional de Comunicações  (ANACOM)",
+        "url": "http://www.anacom.pt/",
+        "entity": "Autoridade Nacional de Comunicações  (ANACOM)"
+    },
+    "23": {
+        "page_name": "Banco de Portugal",
+        "url": "http://www.bportugal.pt/",
+        "entity": "Banco de Portugal"
+    },
+    "24": {
+        "page_name": "Instituto da Construção Cívil e do Imobiliário (IMPIC)",
+        "url": "http://www.inci.pt/",
+        "entity": "Instituto da Construção Cívil e do Imobiliário (IMPIC)"
+    },
+    "25": {
+        "page_name": "Autoridade da Mobilidade e dos Transportes (AMT)",
+        "url": "https://www.amt-autoridade.pt/",
+        "entity": "Autoridade da Mobilidade e dos Transportes (AMT)"
+    },
+    "26": {
+        "page_name": "Instituto da Mobilidade e dos Transportes (IMT)",
+        "url": "http://www.imtt.pt/sites/IMTT/Portugues/Paginas/IMTHome.aspx",
+        "entity": "Instituto da Mobilidade e dos Transportes (IMT)"
+    },
+    "27": {
+        "page_name": "Autoridade de Supervisão de Seguros e Fundos de Pensões (ASF)",
+        "url": "https://www.asf.com.pt/NR/exeres/97C24D91-5FD7-4874-9D7D-FFE049D206D9.htm",
+        "entity": "Autoridade de Supervisão de Seguros e Fundos de Pensões (ASF)"
+    },
+    "28": {
+        "page_name": "Turismo de Portugal",
+        "url": "http://www.turismodeportugal.pt/",
+        "entity": "Turismo de Portugal"
+    },
+    "29": {
+        "page_name": "Autoridade de Segurança Alimentar e Económica (ASAE)",
+        "url": "http://www.asae.pt/",
+        "entity": "Autoridade de Segurança Alimentar e Económica (ASAE)"
+    },
+    "30": {
+        "page_name": "Commissão Nacional de Promoção dos Direitos e Proteção das Crianças e Jovens",
+        "url": "https://www.cnpdpcj.gov.pt/",
+        "entity": "Commissão Nacional de Promoção dos Direitos e Proteção das Crianças e Jovens"
+    },
+    "31": {
+        "page_name": "Comissão Nacional de Proteção de Dados (CNPD)",
+        "url": "https://www.cnpd.pt/",
+        "entity": "Comissão Nacional de Proteção de Dados (CNPD)"
+    },
+    "32": {
+        "page_name": "Autoridade Nacional de Segurança Rodoviária (ANSR)",
+        "url": "https://www.ansr.pt/",
+        "entity": "Autoridade Nacional de Segurança Rodoviária (ANSR)"
+    },
+    "33": {
+        "page_name": "Autoridade Nacional de Emergência e Proteção Civil (ANEPC)",
+        "url": "http://www.prociv.pt/pt-pt/PROTECAOCIVIL/ANPC/QUEMSOMOS/Paginas/default.aspx",
+        "entity": "Autoridade Nacional de Emergência e Proteção Civil (ANEPC)"
+    },
+    "34": {
+        "page_name": "Infarmed",
+        "url": "https://www.infarmed.pt/web/infarmed",
+        "entity": "Infarmed"
+    },
+    "35": {
+        "page_name": "Autoridade da Concorrência",
+        "url": "https://www.concorrencia.pt/pt",
+        "entity": "Autoridade da Concorrência"
+    },
+    "36": {
+        "page_name": "Ministério Público",
+        "url": "https://www.ministeriopublico.pt/",
+        "entity": "Ministério Público"
+    },
+    "37": {
+        "page_name": "Centro Nacional de Cibersegurança Portugal",
+        "url": "https://www.cncs.gov.pt/",
+        "entity": "Centro Nacional de Cibersegurança Portugal"
+    },
+    "38": {
+        "page_name": "Agência de Avaliação e Acreditação do Ensino Superior (A3ES)",
+        "url": "https://www.a3es.pt/",
+        "entity": "Agência de Avaliação e Acreditação do Ensino Superior (A3ES)"
+    },
+    "39": {
+        "page_name": "Fundação para a Ciência e a Tecnologia",
+        "url": "https://www.fct.pt/",
+        "entity": "Fundação para a Ciência e a Tecnologia"
+    }
+}
