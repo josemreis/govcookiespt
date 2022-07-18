@@ -3,7 +3,7 @@
 ## display usage
 show_help() {
     cat <<EOF
-usage: $0 PARAM [-r|--replications] [-l|--location] [-p|--name-prefix] [-headless] [-b | --browser-n] [-h|--help]
+usage: $0 PARAM [-r|--replications] [-l|--locations] [-p|--name-prefix] [-headless] [-b | --browser-n] [-h|--help]
 
 Run multiple tracking audits on governmental websites from Portugal with varying geo-locations (expressvpn) and controlling for the maximum number of cookies
 
@@ -11,7 +11,7 @@ OPTIONS:
    PARAM        The param
    -h|--help    Show this message
    -r|--replications Number of times to replicate a trial given a location
-   -l|--location Expressvpn location alias
+   -l|--locations Comma separated locations using expressvpn aliases
    -p|--name-prefix Trial name prefix
    -b | --browser-n Number of browsers to user per audit
    -headless Should the trial be ran in headless mode?
@@ -25,12 +25,13 @@ EOF
 
 ## initialize some vars
 # prepare the array with the target geo-locations
-LOCATION=""
+LOCATIONS=""
 LOCATION_WITHOUT_VPN="pt"
 REPS=1
 TRIAL_NAME_PREFIX="audit"
 HEADLESS=0
 BROWSER_N=1
+MAX_COOKIES=5000
 ## parse the arguments
 while true; do
     case $1 in
@@ -44,9 +45,9 @@ while true; do
             shift
         fi
         ;;
-    -l | --location)
+    -l | --locations)
         if [ "$2" ]; then
-            LOCATION=($(echo "$2" | tr "," "\n"))
+            LOCATIONS=($(echo "$2" | tr "," "\n"))
             shift
         fi
         ;;
@@ -125,19 +126,6 @@ prepare_script() {
 
 }
 
-run_script() {
-
-    # make the scripts
-    script_1=$(prepare_script 0)
-    # script_2=$(prepare_script 1)
-    # prepare a string to be dynamically evaluated in which both scripts are ran in parallel
-    # final_cmd=$"${script_1} & ${script_2} && fg"
-    final_cmd=$script_1
-    echo -e "Running commands:\n$final_cmd"
-    # run it
-    eval $final_cmd
-}
-
 run_scripts() {
 
     # make the scripts
@@ -172,34 +160,38 @@ conda activate openwpm
 
 # hostname
 HS=$(echo $HOSTNAME)
-# current alias holder
+# current alias empty var
 current_alias=""
 # replications loop
 for i in $(eval echo {1..$REPS}); do
     echo "TRIAL RUN $i"
-    if [ -z "$LOCATION" ]; then
+    if [ -z "$LOCATIONS" ]; then
         # set to the user defined location without vpn
-        LOCATION=(
+        LOCATIONS=(
             $LOCATION_WITHOUT_VPN
         )
         NO_VPN=1
     else
         # shuffle locations
-        LOCATION=($(shuf -e "${LOCATION[@]}"))
+        LOCATIONS=($(shuf -e "${LOCATIONS[@]}"))
         NO_VPN=0
     fi
-    # check if connected to the internet
-    wget -q --tries=10 --timeout=20 --spider http://google.com
-    ## if yes, go on...
-    if [[ $? -eq 0 ]]; then
-        if [[ "$NO_VPN" -gt 0 ]]; then
-            start_vpn $loc
-            current_alias=$loc
+    # loop across the different locations and assign to the relevant flag
+    for loc in "${LOCATIONS[@]}"; do
+        # check if connected to the internet
+        wget -q --tries=10 --timeout=20 --spider http://google.com
+        ## if yes, go on...
+        if [[ $? -eq 0 ]]; then
+            if [[ "$NO_VPN" -gt 0 ]]; then
+                start_vpn $loc
+                current_alias=$loc
+            fi
+            echo "Started running $loc crawlers" 
+            run_scripts
+            echo "Finished running $loc crawlers"
+            if [[ "$NO_VPN" -eq 0 ]]; then
+                disconnect_from_vpn
+            fi
         fi
-        echo "Started running $loc crawlers" 
-        run_script
-        echo "Finished running $loc crawlers"
-
-if [[ "$NO_VPN" -eq 0 ]]; then
-    disconnect_from_vpn
-fi
+    done
+done

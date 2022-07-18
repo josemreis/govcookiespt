@@ -142,3 +142,7 @@ OpenWPM
 
 # vagrant stuff
 .vagrant
+
+# miniconda
+minicoda/
+Miniconda*

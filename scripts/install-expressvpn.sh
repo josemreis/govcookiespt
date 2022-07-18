@@ -29,19 +29,25 @@ echo ""
 wget -q --tries=10 --timeout=20 --spider http://google.com
 ## if yes, go on...
 if [[ $? -eq 0 ]]; then
-    echo "Connected"
+    echo "[+] Connected"
 else 
-    echo "No internet connection. Exiting"
+    echo "[-] No internet connection. Exiting"
     exit -1
 fi
 
+echo ""
 echo "> Check expressvpn activation code..."
+echo ""
 if [ -z "$ACTIVATION_CODE" ]
 then
-    echo "Set ACTIVATION_CODE env var!"
+    echo ""
+    echo "[!] Set ACTIVATION_CODE env var!"
+    echo ""
     exit -1
 else
-    echo "ACTIVATION_CODE env variable is present"
+    echo ""
+    echo "[+] ACTIVATION_CODE env variable is present"
+    echo ""
 fi
 echo ""
 
@@ -71,13 +77,13 @@ echo ""
 activation_test="$(expressvpn status)"
 if [[ "$activation_test" == *"Not Activated"* ]]
 then
-    echo "Failed the activation test!"
+    echo "[-]Failed the activation test!"
     echo "Ouput:"
     echo "$activation_test"
-    echo "Set ACTIVATION_CODE env var!"
+    echo "[!]Set ACTIVATION_CODE env var!"
     exit -1
 else
-    echo "expressvpn activated"
+    echo "[+] expressvpn activated"
 fi
 #https://stackoverflow.com/questions/20430371/my-docker-container-has-no-internet
 # cp /etc/resolv.conf /tmp/resolv.conf
