@@ -11,7 +11,12 @@ config.read(os.path.join(PARENT_DIR, "config.ini"))
 
 # generate some path relevant constants from the config file
 OUTPUT_PATH = config.get("output", "path")
-PATH_TO_OPENWPM = config.get("openwpm", "path")
+
+if os.getlogin() == "vagrant":
+    PATH_TO_OPENWPM = config.get("openwpm-vagrant", "path")
+else:
+    PATH_TO_OPENWPM = config.get("openwpm", "path")
+
 
 # output dir
 OUTPUT_DIR = os.path.join(PARENT_DIR, "output")

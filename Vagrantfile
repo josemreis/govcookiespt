@@ -11,36 +11,36 @@ Vagrant.configure("2") do |config|
   config.vm.box = "generic/ubuntu2204"
 
   # synced folder configs
-  config.vm.synced_folder "./", "/home/vagrant/", type: "rsync", owner: "vagrant", rsync_auto: true, rsync__exclude: ['./OpenWPM/', './miniconda/', './.git/']
-  
+  config.vm.synced_folder "./", "/home/vagrant/", type: "rsync", owner: "vagrant", rsync_auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
+
   # install dependencies, miniconda3, and set up the openwpm environment
   config.vm.provision "shell", inline: <<-SHELL
-    set -e
 
-    # check if the syncing guidelines worked
-    echo $(pwd)
-    echo $(ls)
+    set -e
 
     ## repositories
     echo ""
     echo "[+] Installing ubuntu dependencies"
     echo ""
 
-    sudo apt-get clean -qq
-    sudo rm -r /var/lib/apt/lists/* -vf 
     sudo apt-get clean -qq 
     sudo apt-get update -qq
     sudo apt-get -y upgrade -qq
   
     ## installing dependencies
-    sudo apt-get install -y libterm-readkey-perl ca-certificates wget curl git expect iproute2 procps libnm0 make npm webpack -qq
+    sudo apt-get install -y libterm-readkey-perl ca-certificates wget curl git expect iproute2 procps libnm0 make npm -qq
+    
+    npm -g install npm@latest
+    
+    # see: https://serverfault.com/questions/500764/dpkg-reconfigure-unable-to-re-open-stdin-no-file-or-directory/670688#670688
+    export DEBIAN_FRONTEND=noninteractive
 
     echo ""
     echo "[+] Installing firefox and xvfb"
     echo ""
 
     ## installing firefox and xvfb 
-    sudo apt-get install -y  firefox xvfb -qq
+    sudo apt-get install -y firefox xvfb -qq
 
     echo ""
     echo "[+] Installing miniconda3"
@@ -50,11 +50,13 @@ Vagrant.configure("2") do |config|
     # https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     miniconda=Miniconda3-latest-Linux-x86_64.sh
     wget --quiet https://repo.anaconda.com/miniconda/$miniconda
-    sudo bash $miniconda -b -p /home/vagrant/miniconda3
-    export PATH="/home/vagrant/miniconda3/bin:$PATH"
-    echo 'export PATH="/home/vagrant/miniconda3/bin:$PATH"' >> /home/vagrant/.bashrc
+    sudo bash $miniconda -b -p /home/miniconda3
+    source /home/miniconda3/etc/profile.d/conda.sh
+    hash -r
+    export PATH="/home/miniconda3/bin:$PATH"
+    echo 'export PATH="/home/miniconda3/bin:$PATH"' >> /home/.bashrc
     source ~/.bashrc
-    source /home/vagrant/.bashrc
+    source /home/.bashrc
     echo "conda path: $(which conda)"
     conda config --set always_yes yes --set changeps1 no
     conda update -q conda
@@ -73,62 +75,68 @@ Vagrant.configure("2") do |config|
     echo ""
     echo "> Installing OpenWPM"
     echo ""
+    # store it in opt to avoid the symlink issues in the shared folder known to occur in virtualbox machines
+    cd /opt
     git clone https://github.com/openwpm/OpenWPM.git
-    
-    ## install conda environment and dependencies
-    echo ""
-    echo "> Building the openwpm conda environment"
-    echo ""
+    # permissions for openwpm to all users
+    sudo chmod -R a+rwx OpenWPM
+  SHELL
 
-    cd OpenWPM 
-    source /home/vagrant/miniconda3/etc/profile.d/conda.sh
-    # create the openwpm environment
-    if [ "$1" != "--skip-create" ]; then
-      echo 'Creating / Overwriting openwpm conda environment.'
-      # `PYTHONNOUSERSITE` set so python ignores local user site libraries when building the env
-      # See: https://github.com/openwpm/OpenWPM/pull/682#issuecomment-645648939
-      PYTHONNOUSERSITE=True conda env create --force -q -f environment.yaml
-    fi
-    echo 'Activating environment.'
-    # npm config set bin-links false
-    npm i npm-force-resolutions
-    source /home/vagrant/miniconda3/etc/profile.d/conda.sh
-    conda activate openwpm
-    sudo bash ./scripts/install-firefox.sh
-    # build the extension
-    # npm install webpack webpack-dev-server --save-dev
-    # npm install --save-dev webpack-cli
-    pushd Extension/firefox
-    ls
-    if [ -d "node_modules" ]; then
-      rm -rf node_modules
-    fi
-    if [ -f "package-lock.json" ]; then
-        rm package-lock.json
-    fi
-    pushd ../webext-instrumentation
-    ls
-    # fix:https://exerror.com/eresolve-unable-to-resolve-dependency-tree-error-when-installing-npm-packages/
-    if [ -d "node_modules" ]; then
-      rm -rf node_modules
-    fi
-    if [ -f "package-lock.json" ]; then
-        rm package-lock.json
-    fi
-    sudo npm cache clean --force
-    sudo npm install --legacy-peer-deps
-    popd
-    sudo npm run build
-    popd
-    echo "Success: Extension/firefox/openwpm.xpi has been built"
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+      ## install conda environment and dependencies
+      echo ""
+      echo "> Building the openwpm conda environment"
+      echo ""
+
+      cd /opt/OpenWPM 
+      # fix unlink issues
+      # npm cache clean --force
+      # paths_array=(
+      #   "Extension/firefox"
+      #   "Extension/webext-instrumentation"
+      # )
+      # old_dir=$(pwd)
+      # for p in "${path_array[@]}"; do
+      #   cd p
+      #   ls -l .
+      #   pwd
+      #   if [ -d "node_modules" ]; then
+      #     rm -rf node_modules
+      #   fi
+      #   if [ -f "package-lock.json" ]; then
+      #       rm package-lock.json
+      #   fi
+      #   cd $old_dir
+      # done
+
+      source /home/miniconda3/etc/profile.d/conda.sh
+      # Make conda available to shell script
+      eval "$(conda shell.bash hook)"
+      if [ "$1" != "--skip-create" ]; then
+        echo 'Creating / Overwriting openwpm conda environment.'
+        # `PYTHONNOUSERSITE` set so python ignores local user site libraries when building the env
+        # See: https://github.com/openwpm/OpenWPM/pull/682#issuecomment-645648939
+        PYTHONNOUSERSITE=True conda env create --force -q -f environment.yaml
+      fi
+      echo 'Activating environment.'
+      conda activate openwpm
+      # ls -l /home/miniconda3/envs/
+      # rm -rf /home/miniconda3/envs/openwpm/lib/node_modules/npm/node_modules/
+      # npm cache clean --force
+      echo 'Installing firefox.'
+      ./scripts/install-firefox.sh
+      echo 'Building extension.'
+      ./scripts/build-extension.sh
+      echo 'Installation complete, activate your new environment by running:'
+      echo 'conda activate openwpm'
   SHELL
 
   # install and activate expressvpn
   config.vm.provision "shell", path: "scripts/install-expressvpn.sh", env: {"ACTIVATION_CODE" => ENV['ACTIVATION_CODE']}
 
   # virtual machine provider configs
-  config.vm.provider "virtualbox" do |v|
-    v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant/syncedfoldername", "1"]
+  config.vm.provider :libvert do |v|
+    v.driver = "kvm"
     v.memory = 4096
     v.cpus = 2
   end
