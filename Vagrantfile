@@ -8,29 +8,28 @@
 Vagrant.configure("2") do |config|
 
   # define the base box
-  config.vm.box = "generic/ubuntu2204"
+  config.vm.box = "generic/ubuntu1804"
 
   # synced folder configs
   config.vm.synced_folder "./", "/home/vagrant/", type: "rsync", owner: "vagrant", rsync_auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
-
-  # install dependencies, miniconda3, and set up the openwpm environment
+  # install system dependencies
   config.vm.provision "shell", inline: <<-SHELL
-
     set -e
+    set -x # Print commands and their arguments as they are executed.
 
     ## repositories
     echo ""
     echo "[+] Installing ubuntu dependencies"
     echo ""
 
-    sudo apt-get clean -qq 
-    sudo apt-get update -qq
-    sudo apt-get -y upgrade -qq
+    apt-get clean -qq 
+    apt-get update -qq
+    apt-get -y upgrade -qq
   
     ## installing dependencies
-    sudo apt-get install -y libterm-readkey-perl ca-certificates wget curl git expect iproute2 procps libnm0 make npm -qq
+    apt-get install -y libterm-readkey-perl ca-certificates wget curl git expect iproute2 procps libnm0 make npm -qq
     
-    npm -g install npm@latest
+    # npm -g install npm@latest
     
     # see: https://serverfault.com/questions/500764/dpkg-reconfigure-unable-to-re-open-stdin-no-file-or-directory/670688#670688
     export DEBIAN_FRONTEND=noninteractive
@@ -40,7 +39,13 @@ Vagrant.configure("2") do |config|
     echo ""
 
     ## installing firefox and xvfb 
-    sudo apt-get install -y firefox xvfb -qq
+    apt-get install -y firefox xvfb -qq
+  SHELL
+  # install minicoda3
+  config.vm.provision "shell", inline: <<-SHELL
+
+    set -e
+    set -x # Print commands and their arguments as they are executed.
 
     echo ""
     echo "[+] Installing miniconda3"
@@ -50,20 +55,18 @@ Vagrant.configure("2") do |config|
     # https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     miniconda=Miniconda3-latest-Linux-x86_64.sh
     wget --quiet https://repo.anaconda.com/miniconda/$miniconda
-    sudo bash $miniconda -b -p /home/miniconda3
-    source /home/miniconda3/etc/profile.d/conda.sh
+    bash $miniconda -b -p /home/miniconda3
     hash -r
     export PATH="/home/miniconda3/bin:$PATH"
     echo 'export PATH="/home/miniconda3/bin:$PATH"' >> /home/.bashrc
-    source ~/.bashrc
     source /home/.bashrc
     echo "conda path: $(which conda)"
     conda config --set always_yes yes --set changeps1 no
     conda update -q conda
     conda info -a
-
     ## cloning OpenWPM
     # git clone openwpm if missing
+    cd /home/vagrant
     OPENWPM_PATH="OpenWPM"
     ## check if it exists«
     if [ -d "$OPENWPM_PATH" ]; then
@@ -76,39 +79,25 @@ Vagrant.configure("2") do |config|
     echo "> Installing OpenWPM"
     echo ""
     # store it in opt to avoid the symlink issues in the shared folder known to occur in virtualbox machines
-    cd /opt
     git clone https://github.com/openwpm/OpenWPM.git
-    # permissions for openwpm to all users
-    sudo chmod -R a+rwx OpenWPM
+    # fix issue
+    rm -rf OpenWPM/.git
+    chmod -R a+rwx OpenWPM
+    chown -R $USER OpenWPM
+    chown -R $USER /home/miniconda3
   SHELL
-
+  # build the openwpm environment
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
+
+      set -e 
+      set -x # Print commands and their arguments as they are executed.
+
       ## install conda environment and dependencies
       echo ""
       echo "> Building the openwpm conda environment"
       echo ""
 
-      cd /opt/OpenWPM 
-      # fix unlink issues
-      # npm cache clean --force
-      # paths_array=(
-      #   "Extension/firefox"
-      #   "Extension/webext-instrumentation"
-      # )
-      # old_dir=$(pwd)
-      # for p in "${path_array[@]}"; do
-      #   cd p
-      #   ls -l .
-      #   pwd
-      #   if [ -d "node_modules" ]; then
-      #     rm -rf node_modules
-      #   fi
-      #   if [ -f "package-lock.json" ]; then
-      #       rm package-lock.json
-      #   fi
-      #   cd $old_dir
-      # done
-
+      cd /home/vagrant/OpenWPM 
       source /home/miniconda3/etc/profile.d/conda.sh
       # Make conda available to shell script
       eval "$(conda shell.bash hook)"
@@ -120,9 +109,6 @@ Vagrant.configure("2") do |config|
       fi
       echo 'Activating environment.'
       conda activate openwpm
-      # ls -l /home/miniconda3/envs/
-      # rm -rf /home/miniconda3/envs/openwpm/lib/node_modules/npm/node_modules/
-      # npm cache clean --force
       echo 'Installing firefox.'
       ./scripts/install-firefox.sh
       echo 'Building extension.'
@@ -130,10 +116,8 @@ Vagrant.configure("2") do |config|
       echo 'Installation complete, activate your new environment by running:'
       echo 'conda activate openwpm'
   SHELL
-
   # install and activate expressvpn
   config.vm.provision "shell", path: "scripts/install-expressvpn.sh", env: {"ACTIVATION_CODE" => ENV['ACTIVATION_CODE']}
-
   # virtual machine provider configs
   config.vm.provider :libvert do |v|
     v.driver = "kvm"
