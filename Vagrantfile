@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "generic/ubuntu1804"
 
   # synced folder configs
-  config.vm.synced_folder "./", "/home/vagrant/", type: "rsync", owner: "vagrant", rsync_auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
+  config.vm.synced_folder "./", "/home/vagrant/govcookiespt", type: "rsync", owner: "vagrant", rsync_auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
   # install system dependencies
   config.vm.provision "shell", inline: <<-SHELL
     set -e
@@ -66,7 +66,7 @@ Vagrant.configure("2") do |config|
     conda info -a
     ## cloning OpenWPM
     # git clone openwpm if missing
-    cd /home/vagrant
+    cd /home/vagrant/govcookiespt
     OPENWPM_PATH="OpenWPM"
     ## check if it exists«
     if [ -d "$OPENWPM_PATH" ]; then
@@ -80,7 +80,7 @@ Vagrant.configure("2") do |config|
     echo ""
     # store it in opt to avoid the symlink issues in the shared folder known to occur in virtualbox machines
     git clone https://github.com/openwpm/OpenWPM.git
-    # fix issue
+    # fix permissions issue
     rm -rf OpenWPM/.git
     chmod -R a+rwx OpenWPM
     chown -R $USER OpenWPM
@@ -97,7 +97,7 @@ Vagrant.configure("2") do |config|
       echo "> Building the openwpm conda environment"
       echo ""
 
-      cd /home/vagrant/OpenWPM 
+      cd /home/vagrant/govcookiespt/OpenWPM 
       source /home/miniconda3/etc/profile.d/conda.sh
       # Make conda available to shell script
       eval "$(conda shell.bash hook)"
