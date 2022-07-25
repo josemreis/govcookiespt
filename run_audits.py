@@ -70,6 +70,7 @@ def parse_args() -> dict:
         "--n-websites",
         dest="websites_n",
         nargs="?",
+        type=int,
         default=WEBSITES_N,
         help="Number of websites to use in the audit",
     )
@@ -235,5 +236,5 @@ def crawl(
 if __name__ == "__main__":
     ## parse CLI args
     args_dict = parse_args()
-    ## run the crawl
+    # run the crawl
     crawl(**args_dict)
