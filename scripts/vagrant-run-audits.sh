@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 ## display usage
 show_help() {
     cat <<EOF
@@ -94,8 +96,10 @@ LOCATIONS_ARRAY=($(echo "$LOCATIONS" | tr "," "\n"))
 trap ctrl_c INT
 
 function ctrl_c() {
-    echo "Exiting..."
-    echo "Killing all background jobs"
+    echo ""
+    echo "[!] Killing all background jobs and exiting..."
+    echo ""
+    pkill -9 -f "vagrant"
     pkill -9 -f "python3 run_audits.py"
     disconnect_from_vpn
     exit 0
@@ -103,46 +107,70 @@ function ctrl_c() {
 
 vagrant_create_if_missing() {
 
-    expected_count=${#LOCATIONS_ARRAY[@]}
+    expected_count=0
     actual_count=0
     for loc in "${LOCATIONS_ARRAY[@]}"; do
-        if vagrant status | grep -E -lq "$loc.*running"; then
-            actual_count=$(($actual_count+1))
+        let "expected_count+=1"
+        if LOCATIONS="$LOCATIONS" vagrant status $loc | grep -E -lq "$loc.*running"; then
+            let "actual_count+=1"
         fi
     done
     # check if all machines are created and running, else re-run them
-    if [ $actual_count -ne $expected_count ]; then
+    if [ $actual_count -lt $expected_count ]; then
+        echo ""
+        echo "[+] Creating the virtual machines"
+        echo ""
         vagrant destroy -f &>/dev/null
         vagrant global-status --prune &>/dev/null
         rm -rf ../.vagrant
-        ACTIVATION_CODE="$ACTIVATION_CODE" LOCATIONS="$LOCATIONS" vagrant up
+        ACTIVATION_CODE="$ACTIVATION_CODE" LOCATIONS="$LOCATIONS" vagrant up --parallel
+    else 
+        echo ""
+        echo "[!] Machines already running"
+        echo ""
     fi
 }
 
 start_vpn() {
 
-    LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "expressvpn connect $1"
+    echo ""
+    echo "[+] Connecting to the vpn in machine $1"
+    echo ""
+
+    LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "expressvpn connect $1; sleep 40"
 }
 
 disconnect_from_vpn() {
-    export LOCATIONS="$LOCATIONS" 
-    vagrant ssh $1 --command "if expressvpn status | grep -lq 'Connected to'; then expressvpn disconnect; fi"
-    vagrant ssh $1 --command "sudo systemctl restart systemd-networkd; sleep 40"
+
+    echo ""
+    echo "[+] Disconnecting from the vpn in machine $1"
+    echo ""
+    
+    LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "if expressvpn status | grep -lq 'Connected to'; then expressvpn disconnect; fi"
+    sleep 40
 }
 
 run_script() {
 
     # arg 1 expressvpn alias which will be the name of a machine
-    command_prefix="cd /home/vagrant/govcookiespt; "
+    # hostname of the host machine for dedupling parallel scripts
+    command_prefix="cd /home/vagrant/govcookiespt;"
     # if the user did not define locations, do not use the 
     if [[ $USE_VPN -gt 0 ]]; then
-        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --location $1 --name-prefix "$TRIAL_NAME_PREFIX" --browser-n $BROWSER_N --n-websites $N_WEBSITES -headless"
+        command_final="$command_prefix expressvpn connect $1; sleep 40;  bash scripts/run-audits.sh --replications ${REPS} --location $1 --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --browser-n ${BROWSER_N} --n-websites ${N_WEBSITES} -headless"
         disconnect_from_vpn $1
         start_vpn $1
     else
         # no vpn
-        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --name-prefix "$TRIAL_NAME_PREFIX" --browser-n $BROWSER_N --n-websites $N_WEBSITES -headless"
+        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --browser-n ${BROWSER_N} --n-websites ${N_WEBSITES} -headless"
     fi
+    echo ""
+    echo "[+] Running tracking audit in $1"
+    echo ""
+    echo ""
+    echo "[+] Command: $command_final"
+    echo ""
+    disconnect_from_vpn $1
     LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "$command_final"
     disconnect_from_vpn $1
 
@@ -154,9 +182,9 @@ run_scripts() {
     vagrant_create_if_missing
     for loc in "${LOCATIONS_ARRAY[@]}"
     do
-        echo $loc
         run_script $loc & # Put a function in the background
     done
+    wait
 
 }
 

@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
       # define the base box
       node.vm.box = "hashicorp/bionic64"
       ## synced folder configs
-      node.vm.synced_folder "./", "/home/vagrant/govcookiespt", type: "rsync", owner: "vagrant", rsync__auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
+      node.vm.synced_folder "./", "/home/vagrant/govcookiespt/", type: "virtualbox", owner: "vagrant", rsync__auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
       ## Provisioning
       node.vm.hostname = "vagrant-#{loc}"
       # install system dependencies

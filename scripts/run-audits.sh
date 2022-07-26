@@ -91,14 +91,14 @@ prepare_script() {
         script_template="${script_template} -headless"
     fi
     if [ -n $N_WEBSITES ]; then
-        script_template="${script_template} -n $N_WEBSITES"
+        script_template="${script_template} -n ${N_WEBSITES}"
     fi
     # add the script specific flags
     if [[ $1 -gt 0 ]]; then
-        tmp_script=$(name_prefix="${TRIAL_NAME_PREFIX}_max_cookies_rep_${i}_${HS}" loc="${LOCATION}" envsubst <<<"$script_template")
+        tmp_script=$(name_prefix="${TRIAL_NAME_PREFIX}_max_cookies_rep_${i}_${HOSTNAME}" loc="${LOCATION}" envsubst <<<"$script_template")
         relevant_script="${tmp_script} --max-cookies ${MAX_COOKIES}"
     else
-        relevant_script=$(name_prefix="${TRIAL_NAME_PREFIX}_rep_${i}_${HS}" loc="${LOCATION}" envsubst <<<"$script_template")
+        relevant_script=$(name_prefix="${TRIAL_NAME_PREFIX}_rep_${i}_${HOSTNAME}" loc="${LOCATION}" envsubst <<<"$script_template")
     fi
     final_script="${relevant_script} -b ${BROWSER_N}"
     echo $final_script
@@ -151,8 +151,6 @@ source /home/miniconda3/etc/profile.d/conda.sh
 eval "$(conda shell.bash hook)"
 conda activate openwpm
 
-# hostname
-HS=$(echo $HOSTNAME)
 # replications loop
 for i in $(eval echo {1..$REPS}); do
     echo "TRIAL RUN $i"
