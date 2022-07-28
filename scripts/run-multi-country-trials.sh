@@ -26,7 +26,7 @@ for cur_script in "${scripts_array[@]}"; do
     destroy_machines
     # add the audit id to the audit name prefix argument
     let "audit_n+=1"
-    to_run=$(audit_n="${audit_n}" envsubst <<<"$cur_script")
+    to_run=$(audit_n="$country_dyad_{audit_n}" envsubst <<<"$cur_script")
     # add the dyad id
     for attempt in {1..10}; do
         eval $to_run
