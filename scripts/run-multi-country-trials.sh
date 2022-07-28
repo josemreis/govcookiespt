@@ -15,17 +15,21 @@ destroy_machines() {
 
 # this crawl will use all websites in the sample, so it should take a very long time
 scripts_array=(
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,esba" --name-prefix "audit" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. es (Barcelona)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,denu" --name-prefix "audit" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. de (Nuremberg)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,usny" --name-prefix "audit" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. us (NY)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,in" --name-prefix "audit" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless'   # pt v. in 
+    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,esba" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. es (Barcelona)
+    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,denu" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. de (Nuremberg)
+    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,usny" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless' # pt v. us (NY)
+    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,in" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --n-websites 10 --vpn -headless'   # pt v. in 
 )
-
+audit_n=0
 for cur_script in "${scripts_array[@]}"; do
-    # destroy existing machines
+    # destroy existing machines before each run to save up some memory
     destroy_machines
+    # add the audit id to the audit name prefix argument
+    let "audit_n+=1"
+    to_run=$(audit_n="${audit_n}" envsubst <<<"$cur_script")
+    # add the dyad id
     for attempt in {1..10}; do
-        eval $cur_script
+        eval $to_run
         ret=$?
         if [ $ret -eq 0 ]; then
             break
