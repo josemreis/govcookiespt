@@ -129,11 +129,6 @@ def parse_args() -> dict:
     # no args, notify that defaults will be used
     if len(sys.argv) == 1:
         print(f"[!] No arguments provided, going with the defaults:\n{args_pprint}")
-    else:
-        print(
-            f"[+] Starting a new tracking audit with the following parameters:\n{args_pprint}"
-        )
-
     args = parser.parse_args()
     return vars(args)
 
@@ -168,7 +163,7 @@ def crawl(
     audit_name = trial_name
     if location:
         audit_name = "_".join([audit_name, location])
-    audit_name = "_".join([audit_name, datetime.now().strftime("%Y%m%d")])
+    audit_name = "_".join([audit_name, datetime.now().strftime("%Y%m%d%H%M")])
     ## read the websites
     with open(WEBSITES_PATH, "r", encoding="utf-8") as f:
         websites = json.load(f)
@@ -182,8 +177,6 @@ def crawl(
         random.seed(int(random_seed))
         websites = random.sample(websites, int(websites_n))
     
-    # shuffle
-    random.shuffle(websites)
     ## Run the crawler
     # create an audit instance
     audit = Audit(

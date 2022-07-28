@@ -5,7 +5,7 @@ set -e
 ## display usage
 show_help() {
     cat <<EOF
-usage: $0 PARAM [-r|--replications] [-l|--location] [-p|--name-prefix] [-headless] [-b | --browser-n] [-k | --activation-code] [-h|--help]
+usage: $0 PARAM [-r|--replications] [-l|--location] [-p|--name-prefix] [-headless] [-k | --activation-code] [-h|--help]
 
 Run multiple tracking audits on governmental websites from Portugal with varying geo-locations (expressvpn) and controlling for the maximum number of cookies
 
@@ -15,7 +15,6 @@ OPTIONS:
    -r|--replications Number of times to replicate a trial given a location
    -l|--locations Comma-separated expressvpn location aliases
    -p|--name-prefix Trial name prefix
-   -b | --browser-n Number of browsers to user per audit
    -headless Should the trial be ran in headless mode?
    -k | --activation-code Expressvpn activation code
    -v | --vpn Should it use vpn
@@ -61,9 +60,9 @@ while true; do
             shift
         fi
         ;;
-    -b | --browser-n)
+    -n | --n-websites)
         if [ "$2" ]; then
-            BROWSER_N=$2
+            N_WEBSITES=$2
             shift
         fi
         ;;
@@ -105,39 +104,22 @@ function ctrl_c() {
     exit 0
 }
 
-vagrant_create_if_missing() {
+start_machines() {
 
-    expected_count=0
-    actual_count=0
-    for loc in "${LOCATIONS_ARRAY[@]}"; do
-        let "expected_count+=1"
+    for loc in "${LOCATIONS_ARRAY[@]}"
+    do 
         if LOCATIONS="$LOCATIONS" vagrant status $loc | grep -E -lq "$loc.*running"; then
-            let "actual_count+=1"
+            echo ""
+            echo "[!] Machine $1 already running"
+            echo ""
+        else
+            echo ""
+            echo "[+] Creating the $1 virtual machine"
+            echo ""
+            ACTIVATION_CODE="$ACTIVATION_CODE" LOCATIONS="$LOCATIONS" vagrant up $1 --provision
         fi
     done
-    # check if all machines are created and running, else re-run them
-    if [ $actual_count -lt $expected_count ]; then
-        echo ""
-        echo "[+] Creating the virtual machines"
-        echo ""
-        vagrant destroy -f &>/dev/null
-        vagrant global-status --prune &>/dev/null
-        rm -rf ../.vagrant
-        ACTIVATION_CODE="$ACTIVATION_CODE" LOCATIONS="$LOCATIONS" vagrant up --parallel
-    else 
-        echo ""
-        echo "[!] Machines already running"
-        echo ""
-    fi
-}
 
-start_vpn() {
-
-    echo ""
-    echo "[+] Connecting to the vpn in machine $1"
-    echo ""
-
-    LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "expressvpn connect $1; sleep 40"
 }
 
 disconnect_from_vpn() {
@@ -150,6 +132,15 @@ disconnect_from_vpn() {
     sleep 40
 }
 
+start_vpn() {
+
+    echo ""
+    echo "[+] Connecting to the vpn in machine $1"
+    echo ""
+    LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "expressvpn connect $1"
+    sleep 20
+}
+
 run_script() {
 
     # arg 1 expressvpn alias which will be the name of a machine
@@ -157,12 +148,15 @@ run_script() {
     command_prefix="cd /home/vagrant/govcookiespt;"
     # if the user did not define locations, do not use the 
     if [[ $USE_VPN -gt 0 ]]; then
-        command_final="$command_prefix expressvpn connect $1; sleep 40;  bash scripts/run-audits.sh --replications ${REPS} --location $1 --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --browser-n ${BROWSER_N} --n-websites ${N_WEBSITES} -headless"
+        echo ""
+        echo "[+] Using vpn set to '$1'"
+        echo ""
+        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --location $1 --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --n-websites ${N_WEBSITES} -headless"
         disconnect_from_vpn $1
         start_vpn $1
     else
         # no vpn
-        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --browser-n ${BROWSER_N} --n-websites ${N_WEBSITES} -headless"
+        command_final="$command_prefix bash scripts/run-audits.sh --replications ${REPS} --name-prefix "${TRIAL_NAME_PREFIX}_${HOSTNAME}" --n-websites ${N_WEBSITES} -headless"
     fi
     echo ""
     echo "[+] Running tracking audit in $1"
@@ -170,21 +164,34 @@ run_script() {
     echo ""
     echo "[+] Command: $command_final"
     echo ""
-    disconnect_from_vpn $1
     LOCATIONS="$LOCATIONS" vagrant ssh $1 --command "$command_final"
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        # script failed, return an exit code 42 to inform any parent scripts
+        exit 42
+    fi
     disconnect_from_vpn $1
 
 }
 
-run_scripts() {
+halt_machines() {
+    for loc in "${LOCATIONS_ARRAY[@]}"
+    do
+        # halt the machine
+        LOCATIONS="$LOCATIONS" vagrant halt $loc 
+    done
+}
 
-    # create the vagrant machines, one per location
-    vagrant_create_if_missing
+run_scripts() {
+    # launch the vagrant machines if not running, one per location
+    start_machines
     for loc in "${LOCATIONS_ARRAY[@]}"
     do
         run_script $loc & # Put a function in the background
     done
     wait
+
+    halt_machines
 
 }
 

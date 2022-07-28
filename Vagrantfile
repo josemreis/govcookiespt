@@ -22,10 +22,31 @@ Vagrant.configure("2") do |config|
       print "Configuring: " + "#{loc}\n"
       # define the base box
       node.vm.box = "hashicorp/bionic64"
-      ## synced folder configs
-      node.vm.synced_folder "./", "/home/vagrant/govcookiespt/", type: "virtualbox", owner: "vagrant", rsync__auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/']
-      ## Provisioning
+      ## one-way sync
+      node.vm.synced_folder "./", "/home/vagrant/govcookiespt/", type: "rsync", owner: "vagrant", rsync__auto: true, rsync__exclude: ['./OpenWPM/', './miniconda3/', './.git/', './output/', './resources/profiles/']
+      ## mount the output folder
+      node.vm.synced_folder "./output/", "/home/vagrant/govcookiespt/output/", type: "virtualbox"
+      ## mount the profile folder
+      node.vm.synced_folder "./resources/profiles/", "/home/vagrant/govcookiespt/resources/profiles/", type: "virtualbox"
+      #machine name
       node.vm.hostname = "vagrant-#{loc}"
+
+      # ## install plugins
+      # # Define the plugins in an array format
+      # required_plugins = [
+      #   'vagrant-vbguest'
+      # ]         
+      # plugins_to_install = required_plugins.select { |plugin| not Vagrant.has_plugin? plugin }
+      # if not plugins_to_install.empty?
+      #   puts "Installing plugins: #{plugins_to_install.join(' ')}"
+      #   if system "vagrant plugin install #{plugins_to_install.join(' ')}"
+      #     exec "vagrant #{ARGV.join(' ')}"
+      #   else
+      #     abort "Installation of one or more plugins has failed. Aborting."
+      #   end
+      # end
+      
+      ## provisions
       # install system dependencies
       node.vm.provision "shell", inline: <<-SHELL
         set -e

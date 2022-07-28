@@ -3,7 +3,7 @@
 ## display usage
 show_help() {
     cat <<EOF
-usage: $0 PARAM [-r|--replications] [-l|--location] [-p|--name-prefix] [-headless] [-b | --browser-n] [-n | --n-websites] [-h|--help]
+usage: $0 PARAM [-r|--replications] [-l|--location] [-p|--name-prefix] [-headless] [-n | --n-websites] [-h|--help]
 
 Run multiple tracking audits on governmental websites from Portugal with varying geo-locations (expressvpn) and controlling for the maximum number of cookies
 
@@ -13,7 +13,6 @@ OPTIONS:
    -r|--replications Number of times to replicate a trial given a location
    -l|--location Expressvpn location alias
    -p|--name-prefix Trial name prefix
-   -b | --browser-n Number of browsers to user per audit
    -headless Should the trial be ran in headless mode?
    -n | --n-websites Number of websites to crawl, if left empty all websites will be used
 
@@ -63,12 +62,6 @@ while true; do
             shift
         fi
         ;;
-    -b | --browser-n)
-        if [ "$2" ]; then
-            BROWSER_N=$2
-            shift
-        fi
-        ;;
     -headless)
         let "HEADLESS+=1"
         shift
@@ -87,12 +80,6 @@ prepare_script() {
     # prepare the template
     script_template='python3 run_audits.py -name "${name_prefix}" -l "${loc}"'
     # add the headless and n-websites flags
-    if [[ $HEADLESS -gt 0 ]]; then
-        script_template="${script_template} -headless"
-    fi
-    if [ -n $N_WEBSITES ]; then
-        script_template="${script_template} -n ${N_WEBSITES}"
-    fi
     # add the script specific flags
     if [[ $1 -gt 0 ]]; then
         tmp_script=$(name_prefix="${TRIAL_NAME_PREFIX}_max_cookies_rep_${i}_${HOSTNAME}" loc="${LOCATION}" envsubst <<<"$script_template")
@@ -100,8 +87,13 @@ prepare_script() {
     else
         relevant_script=$(name_prefix="${TRIAL_NAME_PREFIX}_rep_${i}_${HOSTNAME}" loc="${LOCATION}" envsubst <<<"$script_template")
     fi
-    final_script="${relevant_script} -b ${BROWSER_N}"
-    echo $final_script
+    if [ -n $N_WEBSITES ]; then
+        relevant_script="${relevant_script} -n ${N_WEBSITES}"
+    fi
+    if [[ $HEADLESS -gt 0 ]]; then
+        relevant_script="${relevant_script} -headless"
+    fi
+    echo "${relevant_script}"
 
 }
 
@@ -116,6 +108,12 @@ run_script() {
     echo -e "Running commands:\n$final_cmd"
     # run it
     eval $final_cmd
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        # script failed, return an exit code 42 to inform any parent scripts
+        exit 42
+    fi
+    
 }
 
 run_scripts() {
