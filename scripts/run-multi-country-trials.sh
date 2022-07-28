@@ -34,7 +34,8 @@ for cur_script in "${scripts_array[@]}"; do
         if [ $ret -eq 0 ]; then
             break
         else
-            echo "script failed, retrying..."
+            echo "script failed, retrying in 40 seconds..."
+            destroy_machines
             sleep 40
         fi
     done
