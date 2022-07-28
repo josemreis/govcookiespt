@@ -25,3 +25,12 @@ bash scripts/install_dependencies.sh
 ```bash
 conda activate openwpm
 ```
+
+### Vagrant
+
+Case you want to run the audits using various geo-locations, you can use the `scripts/vagrant-run-audits.sh`. For this script to work, you will have to have [vagrant](https://www.vagrantup.com/downloads) and [virtualbox](https://www.virtualbox.org/) installed. As of now, the script uses [ExpressVPN](https://www.expressvpn.com/) and so you will need an active subscription and its activation code. 
+
+
+## Running the tracking audits
+
+
