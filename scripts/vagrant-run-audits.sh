@@ -33,7 +33,7 @@ BROWSER_N=1
 USE_VPN=0
 MAX_COOKIES=5000
 ACTIVATION_CODE=""
-N_WEBSITES=3
+N_WEBSITES=""
 
 ## parse the arguments
 while true; do
