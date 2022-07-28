@@ -176,6 +176,10 @@ def crawl(
             random_seed = random.randint(1, (2**32 - 1))  # random seed limit
         random.seed(int(random_seed))
         websites = random.sample(websites, int(websites_n))
+    else:
+        # just shuffle them
+        random_seed = random_seed or 1234
+        random.shuffle(websites)
     
     ## Run the crawler
     # create an audit instance
