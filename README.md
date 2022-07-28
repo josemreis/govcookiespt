@@ -7,6 +7,7 @@ Measure third-party tracking in Portuguese governmental websites using OpenWPM.
   - [Set up](#set-up)
     - [Instalation](#instalation)
     - [openwpm conda environment](#openwpm-conda-environment)
+    - [Vagrant](#vagrant)
 
 ## Set up
 
