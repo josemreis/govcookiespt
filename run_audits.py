@@ -179,8 +179,9 @@ def crawl(
     else:
         # just shuffle them
         random_seed = random_seed or 1234
+        random.seed(int(random_seed))
         random.shuffle(websites)
-    
+
     ## Run the crawler
     # create an audit instance
     audit = Audit(
