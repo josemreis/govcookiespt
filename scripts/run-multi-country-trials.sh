@@ -15,10 +15,10 @@ destroy_machines() {
 
 # this crawl will use all websites in the sample, so it should take a very long time
 scripts_array=(
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,esba" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless' # pt v. es (Barcelona)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,denu" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless' # pt v. de (Nuremberg)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,usny" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE}  --vpn -headless' # pt v. us (NY)
-    'bash scripts/vagrant-run-audits.sh --replications 2 --locations "pt,in" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless'   # pt v. in 
+    'bash scripts/vagrant-run-audits.sh --replications 3 --locations "pt,esba" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless' # pt v. es (Barcelona)
+    'bash scripts/vagrant-run-audits.sh --replications 3 --locations "pt,denu" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless' # pt v. de (Nuremberg)
+    'bash scripts/vagrant-run-audits.sh --replications 3 --locations "pt,usny" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE}  --vpn -headless' # pt v. us (NY)
+    'bash scripts/vagrant-run-audits.sh --replications 3 --locations "pt,in" --name-prefix "audit_${audit_n}" --activation-code ${ACTIVATION_CODE} --vpn -headless'   # pt v. in 
 )
 audit_n=0
 for cur_script in "${scripts_array[@]}"; do
