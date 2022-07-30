@@ -9,8 +9,9 @@ Measure third-party tracking in Portuguese governmental websites using OpenWPM.
     - [openwpm conda environment](#openwpm-conda-environment)
     - [Vagrant](#vagrant)
   - [Running the tracking audits](#running-the-tracking-audits)
-    - [Running a multi-country audit using expressvpn and vagrant](#running-a-multi-country-audit-using-expressvpn-and-vagrant)
-    - [Running a single country audit (no vpn)](#running-a-single-country-audit-no-vpn)
+    - [The `run_audits.py` CLI tool](#the-run_auditspy-cli-tool)
+    - [Customised trial scripts i): running a multi-country audit using expressvpn and vagrant](#customised-trial-scripts-i-running-a-multi-country-audit-using-expressvpn-and-vagrant)
+    - [Customised trial scripts ii): running a single country audit (no vpn)](#customised-trial-scripts-ii-running-a-single-country-audit-no-vpn)
 
 ## Set up
 
@@ -37,7 +38,40 @@ Case you want to run the audits using various geo-locations, you can use the `sc
 
 ## Running the tracking audits
 
-### Running a multi-country audit using expressvpn and vagrant
+### The `run_audits.py` CLI tool
+
+A CLI tool for running tracking audits on websites associated with the portuguese state. 
+
+```shell
+usage: run_audits [-h] [-ss] [-ps] [-l [LOCATION]] [-headless] [-n [WEBSITES_N]] [-b BROWSER_N] [-mc [MAX_COOKIES]] [-name [TRIAL_NAME]] [-s [PATH_TO_SEED_PROFILE]]
+                  [-r [RANDOM_SEED]]
+
+Run a tracking audit.
+
+options:
+  -h, --help            show this help message and exit
+  -ss, --store-screenshots
+                        Should it take and store screenshots?
+  -ps, --store-source   Should it extract and store the html documents of the pages visited?
+  -l [LOCATION], --location [LOCATION]
+                        Location used alias. Used for directory naming, does not actually start a vpn.
+  -headless             Run headless?
+  -n [WEBSITES_N], --n-websites [WEBSITES_N]
+                        Number of websites to use in the audit
+  -b BROWSER_N, --browser-n BROWSER_N
+                        Number of browsers to use
+  -mc [MAX_COOKIES], --max-cookies [MAX_COOKIES]
+                        As a stoping rule, define a maximum number of cookies a bot is allowed to set. Once reached, the crawl will stop.
+  -name [TRIAL_NAME], --trial-name [TRIAL_NAME]
+                        Trail name to be used as a prefix to the name of the directory/db/profile of the crawl session
+  -s [PATH_TO_SEED_PROFILE], --seed-profile [PATH_TO_SEED_PROFILE]
+                        Path to a compressed firefox profile to be used as the seed profile, e.g. 'profile_archive/clean_seed/profile.tar'
+  -r [RANDOM_SEED], --random-seed [RANDOM_SEED]
+                        Random state seed integer to use while sampling. 
+```
+
+
+### Customised trial scripts i): running a multi-country audit using expressvpn and vagrant
 
 This script will create various vagrant machines with miniconda3, openwpm, and expressvpn installed - if the user provides the expressvpn activation code in the environment variable `ACTIVATION_CODE`.
 
@@ -48,7 +82,7 @@ export ACTIVATION_CODE="...."
 bash scripts/run-multi-country-trials.sh
 ```
 
-### Running a single country audit (no vpn)
+### Customised trial scripts ii): running a single country audit (no vpn)
 
 This script will run a tracking audit without any vpn connection 10 times (replications...).
 
