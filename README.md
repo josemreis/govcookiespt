@@ -8,6 +8,9 @@ Measure third-party tracking in Portuguese governmental websites using OpenWPM.
     - [Instalation](#instalation)
     - [openwpm conda environment](#openwpm-conda-environment)
     - [Vagrant](#vagrant)
+  - [Running the tracking audits](#running-the-tracking-audits)
+    - [Running a multi-country audit using expressvpn and vagrant](#running-a-multi-country-audit-using-expressvpn-and-vagrant)
+    - [Running a single country audit (no vpn)](#running-a-single-country-audit-no-vpn)
 
 ## Set up
 
@@ -34,4 +37,21 @@ Case you want to run the audits using various geo-locations, you can use the `sc
 
 ## Running the tracking audits
 
+### Running a multi-country audit using expressvpn and vagrant
 
+This script will create various vagrant machines with miniconda3, openwpm, and expressvpn installed - if the user provides the expressvpn activation code in the environment variable `ACTIVATION_CODE`.
+
+Then for it will run tracking audits in parallel in two vagrant machines with different vpn connections. As is, it will always combine a vpn connection to portugal with another country. As of now, I am using "Spain (Barcelona)", "Germany (Nuremberg)", "US (NY)", and "India".
+
+```shell
+export ACTIVATION_CODE="...."
+bash scripts/run-multi-country-trials.sh
+```
+
+### Running a single country audit (no vpn)
+
+This script will run a tracking audit without any vpn connection 10 times (replications...).
+
+```shell
+bash scripts/run-single-country-trial.sh
+```
